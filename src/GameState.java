@@ -3,8 +3,11 @@
  */
 public class GameState {
 
-    private final int ROW_NUMBER = 10;
-    private final int COL_NUMBER = 10;
+    private final int ROW_NUMBER = 8;
+    private final int COL_NUMBER = 8;
+    private final char BLACK = '@';
+    private final char WHITE = 'O';
+
 
     private int[][] gameBoard;
 
@@ -63,22 +66,49 @@ public class GameState {
      * This function prints the object to console. Black player's represented by # and While player's represented by *
      */
     public void printBoardToConsole(){
-
+        //printing row by row
         for(int i = 0; i < ROW_NUMBER; i++){
+            //legend for each column at the top
+            if(i == 0)    System.out.println("   A    B    C    D    E    F    G    H  ");
+            //legend for each row
+            System.out.print(i);
+            //printing columns
             for(int j = 0; j < COL_NUMBER; j++){
                 switch(this.gameBoard[i][j]){
                     case 0:
                         System.out.print("  .  ");
                         break;
                     case 1:
-                        System.out.print("  #  ");
+                        System.out.printf("  %c  ", BLACK);
                         break;
                     case 2:
-                        System.out.print("  *  ");
+                        System.out.printf("  %c  ", WHITE);
                         break;
                 }
-                //next line
-                System.out.println();
+
+            }
+
+            switch(i){
+                case 0:
+                    System.out.println("  Legend");
+                    break;
+                case 1:
+                    System.out.printf("  Black Player (Player 1): %c\n", BLACK);
+                    break;
+                case 2:
+                    System.out.printf("  White Player (Player 2): %c\n", WHITE);
+                    break;
+
+                case 3:
+                    System.out.println("  Empty Spaces: .");
+                    break;
+
+                case 4:
+                    System.out.println("  Available plays: _");
+                    break;
+
+                    default:
+                        System.out.println();
             }
         }
 
