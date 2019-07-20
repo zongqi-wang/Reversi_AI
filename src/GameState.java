@@ -3,18 +3,21 @@
  */
 public class GameState {
 
-    public final int ROW_NUMBER = 10;
-    public final int COL_NUMBER = 10;
+    private final int ROW_NUMBER = 10;
+    private final int COL_NUMBER = 10;
+
+    private int[][] gameBoard;
+
     public GameState(){
 
         //storing the game board, 0 is empty, 1 is Black and 2 is White.
-        int[][] gameBoard = new int[ROW_NUMBER][COL_NUMBER];
+        this.gameBoard = new int[ROW_NUMBER][COL_NUMBER];
 
         //initial position
-        gameBoard[3][3] = 2;
-        gameBoard[4][4] = 2;
-        gameBoard[3][4] = 1;
-        gameBoard[4][3] = 1;
+        this.gameBoard[3][3] = 2;
+        this.gameBoard[4][4] = 2;
+        this.gameBoard[3][4] = 1;
+        this.gameBoard[4][3] = 1;
     }
 
     /**
