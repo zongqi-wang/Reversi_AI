@@ -1,42 +1,54 @@
 import java.awt.*;
+import java.awt.image.BufferStrategy;
 
-public class Game extends Canvas implements Runnable{
+public class Game{
 
-    public final int HEIGHT = 600;
-    public final int WIDTH = 800;
-    public synchronized void start(){
+    public final int WIDTH = 1200;
+    public final int HEIGHT = 900;
 
-    }
-
-    public void run(){
-
-    }
+    private GameState gs;
+    private GameWindow gw;
 
     public Game(){
-        GameWindow g = new GameWindow(WIDTH, HEIGHT,  "Reversi", this);
-
-        
+        gw = new GameWindow(WIDTH, HEIGHT,  "Reversi", this);
+        gs = GameState.MAIN_MENU;
+        gw.updateGameWindow();
     }
 
 
-    public static int getPlayerPreferences(){
 
-        return 0;
-    }
-
+    /**
+     * Main function of Reversi game
+     * @param args
+     */
     public static void main(String[] args) {
         Tree gameTree = new Tree();
         GameBoard newGame = new GameBoard();
 
         //Welcome message
-        System.out.println("Welcome to a new game of Reversi!");
-
-        System.out.println("Would you like to play first or second? Black player plays first: ");
-        int pp = getPlayerPreferences();
-
-        newGame.printBoardToConsole();
+        //System.out.println("Welcome to a new game of Reversi!");
+        //System.out.println("Would you like to play first or second? Black player plays first: ");
+        //int pp = getPlayerPreferences();
+        //newGame.printBoardToConsole();
 
         new Game();
+    }
+
+        /**
+     * Standard helper function
+     * @return game state
+     */
+    public GameState getGameState(){
+        return this.gs;
+    }
+
+    /**
+     * standard helper function
+     * @param state The updated gamestate
+     */
+    public void setGameState(GameState state){
+        this.gs = state;
+        gw.updateGameWindow();
     }
 
 }

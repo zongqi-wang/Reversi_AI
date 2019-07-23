@@ -60,7 +60,75 @@ public class GameBoard {
 
     }
 
+    /**
+     * This function calculates all legal moves for current player and returns them in a 2D int array
+     * @param player the player to check for
+     * @return a 2D int array in which illegal moves are 0 and legal moves are assigned to 'player'
+     */
+    public int[][] getLegalMoves(int player){
+        int[][] legalMoves = new int[ROW_NUMBER][COL_NUMBER];
 
+        for(int row = 0; row < ROW_NUMBER; row++){
+            for(int col = 0; col< COL_NUMBER; col++){
+
+                if(this.gameBoard[row][col] == 0){
+                    //checking all 8 directions of the cell
+                    boolean nw = legal(player, -1, -1, row, col);
+                    boolean nn = legal(player, -1, 0, row, col);
+                    boolean ne = legal(player, -1, 1, row, col);
+
+                    boolean w = legal(player, 0, -1, row, col);
+                    boolean e = legal(player, 0, 1, row, col);
+
+                    boolean sw = legal(player, 1, -1, row, col);
+                    boolean ss = legal(player, 1, 0, row, col);
+                    boolean se = legal(player, 1, 1, row, col);
+
+                    if(nw || nn || ne || w || e || sw || ss || se){
+                        legalMoves[col][row] = player;
+                    }
+                }
+            }
+
+        }
+
+        return legalMoves;
+    }
+
+    /**
+     * This function takes a single cell and calculates if it is a legal move.
+     * A legal move is defiend as: if a cell immediately adjacent to the cell we are checking is occupied by
+     * the opponent, and following the line indicated by row and column offsets eventually reacha another cell occupied
+     * by the player we are checking for. This cell is deemed a legal move.
+     * @param player the player to check for
+     * @param row_offset the row offset of line
+     * @param col_offset the column offset of line
+     * @param current_row the current row position of cell to check
+     * @param current_col the current column position of cell to check
+     * @return boolean; true if legal.
+     */
+    private boolean legal(int player, int row_offset, int col_offset, int current_row, int current_col){
+        int op;
+        if(player == 1) op = 2;
+        else if(player ==2) op = 1;
+        else{
+            System.out.println("Problem with player checking legal move. Current player: " + player);
+            return false;
+        }
+
+        if(this.gameBoard[current_row + row_offset][current_col + col_offset] == op){
+            while((current_col + col_offset >=0 && current_row + row_offset >=0)
+                    && (current_col + col_offset < COL_NUMBER && current_row + row_offset <COL_NUMBER)){
+                if(this.gameBoard[current_row + row_offset][current_col + col_offset] == player)
+                    return true;
+                current_col = current_col+=col_offset;
+                current_row = current_row+=row_offset;
+            }
+        }
+
+        return false;
+
+    }
 
     /**
      * This function prints the object to console. Black player's represented by # and While player's represented by *
