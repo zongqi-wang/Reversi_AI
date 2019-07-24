@@ -24,7 +24,6 @@ public class GameWindow extends Canvas {
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         //frame.add(game);
-        frame.setVisible(true);
         //game.start();
 
         this.game = game;
@@ -35,7 +34,9 @@ public class GameWindow extends Canvas {
         gs = game.getGameState();
         switch(gs){
             case MAIN_MENU:
-                new MenuWindow(frame, game);
+                MenuWindow menu = new MenuWindow(frame, game);
+                frame.add(menu.getPanel());
+                frame.setVisible(true);
                 break;
             case ABOUT:
                 break;

@@ -12,6 +12,10 @@ public class Game{
     public Game(){
         gw = new GameWindow(WIDTH, HEIGHT,  "Reversi", this);
         gs = GameState.MAIN_MENU;
+
+        Tree gameTree = new Tree();
+        GameBoard newGame = new GameBoard();
+
         gw.updateGameWindow();
     }
 
@@ -22,8 +26,6 @@ public class Game{
      * @param args
      */
     public static void main(String[] args) {
-        Tree gameTree = new Tree();
-        GameBoard newGame = new GameBoard();
 
         //Welcome message
         //System.out.println("Welcome to a new game of Reversi!");

@@ -20,7 +20,7 @@ public class MenuWindow extends JFrame {
 
     public MenuWindow(JFrame rootFrame, Game game){
         this.g = game;
-        rootFrame.add(menuPanel);
+        //rootFrame.add(menuPanel);
         newGameButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
