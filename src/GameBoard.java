@@ -11,6 +11,8 @@ public class GameBoard {
 
     private int[][] gameBoard;
 
+    private int legalMovesCount;
+
     public GameBoard(){
 
         //storing the game board, 0 is empty, 1 is Black and 2 is White.
@@ -60,6 +62,39 @@ public class GameBoard {
 
     }
 
+    public int[][] getGameBoard(){
+        return gameBoard;
+    }
+    /**
+     * This function checks the board for the current scores of both players and return them in a 2 length array.
+     * @return a 2 length array of which the first cell stores the current score for black player and the second for
+     * white.
+     */
+    public int[] getScore() {
+
+        int[] scores = {0,0};
+
+        for(int row = 0; row < ROW_NUMBER; row++){
+            for(int col = 0; col < COL_NUMBER; col++){
+                if(this.gameBoard[row][col] == 1){
+                    scores[0]++;
+                }
+                else if(this.gameBoard[row][col] == 2){
+                    scores[1]++;
+                }
+            }
+        }
+
+        return scores;
+    }
+
+    /**
+     * standard helper function
+     * @return count of legal moves of current player after updated by getLegalMoves()
+     */
+    public int getLegalMovesCount(){
+        return legalMovesCount;
+    }
     /**
      * This function calculates all legal moves for current player and returns them in a 2D int array
      * @param player the player to check for
@@ -68,6 +103,7 @@ public class GameBoard {
     public int[][] getLegalMoves(int player){
         int[][] legalMoves = new int[ROW_NUMBER][COL_NUMBER];
 
+        legalMovesCount = 0;
         for(int row = 0; row < ROW_NUMBER; row++){
             for(int col = 0; col< COL_NUMBER; col++){
 
@@ -86,6 +122,7 @@ public class GameBoard {
 
                     if(nw || nn || ne || w || e || sw || ss || se){
                         legalMoves[col][row] = player;
+                        legalMovesCount++;
                     }
                 }
             }
@@ -116,13 +153,21 @@ public class GameBoard {
             return false;
         }
 
-        if(this.gameBoard[current_row + row_offset][current_col + col_offset] == op){
-            while((current_col + col_offset >=0 && current_row + row_offset >=0)
-                    && (current_col + col_offset < COL_NUMBER && current_row + row_offset <COL_NUMBER)){
-                if(this.gameBoard[current_row + row_offset][current_col + col_offset] == player)
-                    return true;
-                current_col = current_col+=col_offset;
-                current_row = current_row+=row_offset;
+        if((current_col + col_offset >= 0 && current_row + row_offset >= 0)
+                && (current_col + col_offset < COL_NUMBER && current_row + row_offset < COL_NUMBER)){
+            if(this.gameBoard[current_row + row_offset][current_col + col_offset] == op) {
+                current_col = current_col += col_offset;
+                current_row = current_row += row_offset;
+                while ((current_col + col_offset >= 0 && current_row + row_offset >= 0)
+                        && (current_col + col_offset < COL_NUMBER && current_row + row_offset < COL_NUMBER)){
+                    if (this.gameBoard[current_row + row_offset][current_col + col_offset] == player)
+                        return true;
+                    current_col = current_col += col_offset;
+                    current_row = current_row += row_offset;
+                }
+
+
+
             }
         }
 

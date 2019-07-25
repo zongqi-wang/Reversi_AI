@@ -3,12 +3,12 @@ import java.awt.event.MouseEvent;
 
 public class MouseInput extends MouseAdapter {
 
-    private GameHandler handler;
-
-    public MouseInput(GameHandler handler){
-        this.handler = handler;
+    public MouseInput(){
 
     }
 
-
+    @Override
+    public void mousePressed(MouseEvent e) {
+        System.out.println(e.getX() + " . " + e.getY());
+    }
 }

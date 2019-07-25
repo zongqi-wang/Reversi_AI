@@ -36,6 +36,20 @@ public class MenuWindow extends JFrame {
                 System.exit(0);
             }
         });
+        rulesButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                g.setGameState(GameState.RULE);
+                clearFrame(rootFrame);
+            }
+        });
+        aboutButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                g.setGameState(GameState.ABOUT);
+                clearFrame(rootFrame);
+            }
+        });
     }
 
     public JPanel getPanel(){

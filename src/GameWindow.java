@@ -3,22 +3,34 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.image.BufferStrategy;
 
 public class GameWindow extends Canvas {
 
     private JFrame frame;
-
     private JPanel rootPanel;
+
+    public final int WIDTH = 1200;
+    public final int HEIGHT = 800;
 
     private Game game;
     private GameState gs;
 
-    public GameWindow(int width, int height, String title, Game game){
+    private final int MAX_ROW = 8;
+    private final int MAX_COL = 8;
+
+    private CanvasPanel canvasPanel = new CanvasPanel();
+    private int[][] gameBoard;
+    private int[][] legalMoves;
+    private int[] scores;
+    private  int turn;
+
+    public GameWindow(String title, Game game){
 
         frame = new JFrame(title);
-        frame.setPreferredSize(new Dimension(width, height));
-        frame.setMaximumSize(new Dimension(width, height));
-        frame.setMinimumSize(new Dimension(width, height));
+        frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        frame.setMaximumSize(new Dimension(WIDTH, HEIGHT));
+        frame.setMinimumSize(new Dimension(WIDTH, HEIGHT));
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
@@ -30,25 +42,58 @@ public class GameWindow extends Canvas {
 
     }
 
+    /**
+     * This function takes care of switching menu screens when buttons are pressed and game state changed
+     *
+     */
     public void updateGameWindow(){
-        gs = game.getGameState();
+        this.gs = game.getGameState();
         switch(gs){
             case MAIN_MENU:
                 MenuWindow menu = new MenuWindow(frame, game);
                 frame.add(menu.getPanel());
                 frame.setVisible(true);
                 break;
+
             case ABOUT:
+                AboutWindow about = new AboutWindow(frame, game);
+                frame.add(about.getAboutPanel());
+                //frame.setVisible(true);
                 break;
+
             case RULE:
+                RulesWindow rules = new RulesWindow(frame, game);
+                frame.add(rules.getRulesPanel());
+                //frame.setVisible(true);
                 break;
+
             case PLAYER_1:
-                new PlayerOne(frame, game);
-            case PLAYER_2:
+                PlayerOne p1w = new PlayerOne(frame, game);
+                frame.add(p1w.getPlayerOnePanel());
+
                 break;
+
+            case PLAYER_2:
+                PlayerTwo p2w = new PlayerTwo(frame, game);
+                frame.add(p2w.getPlayerTwoPanel());
+                break;
+
             case GAME:
+                frame.addMouseListener(new MouseInput());
+                frame.add(canvasPanel);
+                frame.setVisible(true);
+                game.startGame();
+
                 break;
         }
+    }
+
+    public void render(int[][] game, int[][] legal, int turn, int[] scores){
+        this.gameBoard = game;
+        this.legalMoves = legal;
+        this.scores = scores;
+        this.turn = turn;
+        canvasPanel.repaint();
     }
 
     public void clearFrame(JPanel panel){
@@ -57,51 +102,66 @@ public class GameWindow extends Canvas {
         frame.repaint();
     }
 
-//    public void renderPanel(){
-//        this.gs = ggame.getGameState();    }
+    public class CanvasPanel extends JPanel{
+        public CanvasPanel(){
+            setBackground(Color.WHITE);
+        }
 
-//    public void tick(){
-////        switch(gs){
-////            case MAIN_MENU:
-////                MenuWindow menu = new MenuWindow(frame, game);
-////                break;
-////            case ABOUT:
-////                break;
-////            case RULE:
-////                break;
-////            case PLAYER_1:
-////                System.out.println("case switched");
-////                PlayerOne p1 = new PlayerOne(frame, game);
-////            case PLAYER_2:
-////                break;
-////            case GAME:
-////                break;
-////        }
-//
-//    }
-//
-//    public void render(Graphics g){
-//        System.out.println("called");
-//        this.gs = game.getGameState();
-//        switch(this.gs){
-//            case MAIN_MENU:
-//                System.out.println("rendering");
-//                g.setColor(Color.white);
-//                g.fillRect(0, 0, WIDTH, HEIGHT);
-//                g.drawRect(200, 100, 100, 64);
-//                break;
-//            case ABOUT:
-//                break;
-//            case RULE:
-//                break;
-//            case PLAYER_1:
-//                System.out.println("case switched");
-//                PlayerOne p1 = new PlayerOne(frame, game);
-//            case PLAYER_2:
-//                break;
-//            case GAME:
-//                break;
-//        }
-//
-//    }
+
+        public void paintComponent(Graphics g){
+            super.paintComponent(g);
+            g.setColor(new Color(31,163,24));
+            g.fillRect(0,0, 800, 800);
+
+            int gridWidth = 100;
+            //painting the grid
+            g.setColor(Color.BLACK);
+
+            for(int i = 1; i < 8; i++){
+                g.drawLine(0, gridWidth*i, 800, gridWidth*i);
+                g.drawLine(gridWidth*i, 0, gridWidth*i, 800);
+            }
+
+            //painting player and legal moves
+            for(int row = 0; row < 8; row++){
+                for(int col = 0; col < 8; col++){
+
+                    if(gameBoard[row][col] == 1){
+                        g.setColor(Color.BLACK);
+                        g.fillOval(col*gridWidth+10, row*gridWidth+10, 80, 80);
+                    }
+                    else if(gameBoard[row][col] == 2){
+                        g.setColor(Color.WHITE);
+                        g.fillOval(col*gridWidth+10, row*gridWidth+10, 80, 80);
+                    }
+
+                    if(legalMoves[row][col] != 0){
+                        g.setColor(Color.BLACK);
+                        g.drawOval(col*gridWidth+10, row*gridWidth+10, 80, 80);
+                    }
+                }
+            }
+            //TODO: paint turn signal
+            g.setColor(new Color(78, 154, 242));
+            g.fillRect(800,0, 400, 800);
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("TimesRoman", Font.PLAIN, 70));
+            g.drawString("Turn", 915, 100);
+            g.drawString("Score", 900, 400);
+
+//            g.setColor(Color.BLACK);
+            g.fillOval(900,450, 80, 80);
+            g.drawString(Integer.toString(scores[0]), 1020, 510);
+            g.drawString(Integer.toString(scores[1]), 1020, 650);
+            if(turn == 1)
+                g.fillOval(950, 150, 80, 80);
+
+            g.setColor(Color.WHITE);
+            g.fillOval(900,580, 80, 80);
+
+            if(turn == 2)
+                g.fillOval(940, 150, 80, 80);
+
+        }
+    }
 }
