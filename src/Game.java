@@ -20,9 +20,7 @@ public class Game{
         gw.updateGameWindow();
     }
 
-    public int[] getHumanInput(int[][] legalMoves){
 
-    }
 
     /**
      *
@@ -36,7 +34,7 @@ public class Game{
             //first player's turn
             if(turn == 1){
                 if(players[0] == PlayerType.HUMAN){
-                    getHumanInput(legalMoves);
+                    gw.getHumanInput();
                 }
                 else if(players[0] == PlayerType.PURE){
                     mcts = new MonteCarloTreeSearch(gb, PlayerType.PURE, turn);

@@ -4,14 +4,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferStrategy;
+import java.util.concurrent.CompletableFuture;
 
-public class GameWindow extends Canvas {
+public class GameWindow extends Canvas{
 
     private JFrame frame;
     private JPanel rootPanel;
 
     public final int WIDTH = 1200;
-    public final int HEIGHT = 800;
+    public final int HEIGHT = 830;
 
     private Game game;
     private GameState gs;
@@ -79,9 +80,7 @@ public class GameWindow extends Canvas {
                 break;
 
             case GAME:
-                frame.addMouseListener(new MouseInput());
                 frame.add(canvasPanel);
-                frame.setVisible(true);
                 game.startGame();
 
                 break;
@@ -96,11 +95,36 @@ public class GameWindow extends Canvas {
         canvasPanel.repaint();
     }
 
+    public int[] getHumanInput(){
+
+        int[] coord = new int[2];
+        MouseInput mouse = new MouseInput(this.legalMoves);
+        frame.addMouseListener(mouse);
+//        final CompletableFuture<Boolean> fut = new CompletableFuture<Boolean>();
+        coord = mouse.getCoord();
+        frame.removeMouseListener(mouse);
+
+
+        return coord;
+    }
+
+    public void tick(){
+
+    }
+
+
+    public JFrame getFrame(){
+        return this.frame;
+    }
+
+
     public void clearFrame(JPanel panel){
         frame.remove(panel);
         frame.revalidate();
         frame.repaint();
     }
+
+
 
     public class CanvasPanel extends JPanel{
         public CanvasPanel(){
@@ -141,7 +165,6 @@ public class GameWindow extends Canvas {
                     }
                 }
             }
-            //TODO: paint turn signal
             g.setColor(new Color(78, 154, 242));
             g.fillRect(800,0, 400, 800);
             g.setColor(Color.BLACK);
