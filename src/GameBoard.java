@@ -9,6 +9,9 @@ public class GameBoard {
     private final char WHITE = 'O';
 
 
+    private boolean playerOneNoMove = false;
+    private boolean playerTwoNoMove = false;
+
     private int[][] gameBoard;
 
     private int legalMovesCount;
@@ -36,29 +39,86 @@ public class GameBoard {
 
         if(this.gameBoard[row][col] != 0)
             return -1;
-
         int updated = 1;
-        //looking for
-        for(int i = 0; i<ROW_NUMBER; i++){
-            if(i == row) continue;
+        gameBoard[row][col]=player;
+        boolean nw = findToken(player, -1, -1, row, col);
+        boolean nn = findToken(player, -1, 0, row, col);
+        boolean ne = findToken(player, -1, 1, row, col);
 
-            if(this.gameBoard[i][col] == player){
-                updated = 0;
+        boolean w = findToken(player, 0, -1, row, col);
+        boolean e = findToken(player, 0, 1, row, col);
 
-                if(i < row){
-                    for(int j = i; j<row; j++)
-                        this.gameBoard[j][col] = player;
-                }
-                else{
-                    for(int j = row; j<i; j++)
-                        this.gameBoard[j][col] = player;
-                }
+        boolean sw = findToken(player, 1, -1, row, col);
+        boolean ss = findToken(player, 1, 0, row, col);
+        boolean se = findToken(player, 1, 1, row, col);
 
-            }
+
+        if(nw){
+            System.out.println("nw");
+            updateLine(player, -1, -1, row-1, col-1);
+        }
+        if(nn){
+            System.out.println("nn");
+            updateLine(player, -1, 0, row-1, col);
+        }
+        if(ne){
+            System.out.println("ne");
+            updateLine(player, -1, 1, row-1, col+1);
+        }
+        if(w){
+            System.out.println("w");
+            updateLine(player, 0, -1, row, col-1);
+        }
+        if(e){
+            System.out.println("s");
+            updateLine(player, 0, 1, row, col+1);
+        }
+        if(sw){
+            System.out.println("sw");
+            updateLine(player, 1, -1, row+1, col+1);
+        }
+        if(ss){
+            System.out.println("ss");
+            updateLine(player, 1, 0, row+1, col);
+        }
+        if(se){
+            System.out.println("se");
+            updateLine(player, 1, 1, row+1, col+1);
         }
 
 
         return updated;
+
+    }
+
+    private void updateLine(int player, int row_offset, int col_offset, int row, int col){
+        if(gameBoard[row][col] == player) return;
+
+        gameBoard[row][col] = player;
+        updateLine(player, row_offset, col_offset, row + row_offset, col+col_offset);
+    }
+
+    /**
+     *
+     * @param row
+     * @param col
+     * @param row_offset
+     * @param col_offset
+     * @param player
+     * @return
+     */
+    private boolean findToken(int player, int row_offset, int col_offset, int row, int col){
+        if((col + col_offset >= 0 && row + row_offset >= 0)
+                && (col + col_offset < COL_NUMBER && row + row_offset < COL_NUMBER)){
+
+            //empty cell
+            if(gameBoard[row+row_offset][col+col_offset] == 0) return false;
+            else if(gameBoard[row+row_offset][col+col_offset] == player) return true;
+            else
+                return findToken(player, row_offset, col_offset, row+row_offset, col+col_offset);
+        }
+        else
+            return false;
 
     }
 
@@ -95,6 +155,8 @@ public class GameBoard {
     public int getLegalMovesCount(){
         return legalMovesCount;
     }
+
+
     /**
      * This function calculates all legal moves for current player and returns them in a 2D int array
      * @param player the player to check for
@@ -123,6 +185,8 @@ public class GameBoard {
                     if(nw || nn || ne || w || e || sw || ss || se){
                         legalMoves[col][row] = player;
                         legalMovesCount++;
+                        if(player == 1) playerOneNoMove = false;
+                        if(player == 2) playerTwoNoMove = false;
                     }
                 }
             }
@@ -153,8 +217,10 @@ public class GameBoard {
             return false;
         }
 
+        //out of bound
         if((current_col + col_offset >= 0 && current_row + row_offset >= 0)
                 && (current_col + col_offset < COL_NUMBER && current_row + row_offset < COL_NUMBER)){
+            //immediately next to an enemy token
             if(this.gameBoard[current_row + row_offset][current_col + col_offset] == op) {
                 current_col = current_col += col_offset;
                 current_row = current_row += row_offset;

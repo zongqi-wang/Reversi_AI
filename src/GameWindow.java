@@ -1,12 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.awt.image.BufferStrategy;
-import java.util.concurrent.CompletableFuture;
 
 public class GameWindow extends Canvas{
+
+
 
     private JFrame frame;
     private JPanel rootPanel;
@@ -24,7 +21,10 @@ public class GameWindow extends Canvas{
     private int[][] gameBoard;
     private int[][] legalMoves;
     private int[] scores;
-    private  int turn;
+    private int turn;
+
+    private int row, col;
+    public final int VERTICAL_OFFSET = 30;
 
     public GameWindow(String title, Game game){
 
@@ -81,7 +81,7 @@ public class GameWindow extends Canvas{
 
             case GAME:
                 frame.add(canvasPanel);
-                game.startGame();
+                game.takeTurn();
 
                 break;
         }
@@ -95,22 +95,47 @@ public class GameWindow extends Canvas{
         canvasPanel.repaint();
     }
 
-    public int[] getHumanInput(){
-
-        int[] coord = new int[2];
-        MouseInput mouse = new MouseInput(this.legalMoves);
+    public void addMouse(MouseInput mouse){
         frame.addMouseListener(mouse);
-//        final CompletableFuture<Boolean> fut = new CompletableFuture<Boolean>();
-        coord = mouse.getCoord();
+    }
+
+    public void removeMouse(MouseInput mouse){
         frame.removeMouseListener(mouse);
-
-
-        return coord;
     }
 
-    public void tick(){
+//    public void getHumanInput(){
+//
+//        MouseInput mouse = new MouseInput(legalMoves);
+//
+//
+////        frame.addMouseListener(mouse);
+////        try {
+////            Thread input = new Thread(new HumanInput(mouse));
+////            input.start();
+////            synchronized (mouse){
+////                input.wait();
+////            }
+////            input.wait();
+////        } catch (InterruptedException e) {
+////            //Handle exception
+////        }
+////
+////
+////        int[] coord = mouse.getCoord();
+////        frame.removeMouseListener(mouse);
+////        frame.addMouseListener(new MouseAdapter() {
+////            @Override
+////            public void mousePressed(MouseEvent e) {
+////
+////                col = e.getX()/100;
+////                row = (e.getY()-VERTICAL_OFFSET)/100;
+////
+////            }
+////        });
+//
+//    }
 
-    }
+
 
 
     public JFrame getFrame(){
@@ -187,4 +212,7 @@ public class GameWindow extends Canvas{
 
         }
     }
+
+
+
 }
