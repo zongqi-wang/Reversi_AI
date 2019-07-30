@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class MouseInput extends MouseAdapter {
 
-    private final int VERTICAL_OFFSET = 30;
+    private final int VERTICAL_OFFSET = 25;
     private int[][] legalMoves;
     private boolean inputReveiced = false;
     private int[] coord;

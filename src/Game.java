@@ -30,6 +30,11 @@ public class Game implements Runnable{
      */
     public void takeTurn(){
         int[][] legalMoves = gb.getLegalMoves(currentPlayer);
+        if(gb.gameEnd() || gb.getLegalMovesCount() == 0){
+            System.out.println("Game Ended!");
+            stop();
+
+        }
         gw.render(gb.getGameBoard(), legalMoves, currentPlayer, gb.getScore());
 
         //first player's turn
@@ -51,8 +56,8 @@ public class Game implements Runnable{
 
             }
 
-            System.out.println("current player is " + currentPlayer);
-            currentPlayer = 2;
+//            System.out.println("current player is " + currentPlayer);
+//            currentPlayer = 2;
 
         }
         //second player's turn
@@ -73,8 +78,8 @@ public class Game implements Runnable{
                 mcts = new MonteCarloTreeSearch(gb, PlayerType.NN, currentPlayer);
 
             }
-            System.out.println("current player is " + currentPlayer);
-            currentPlayer =1;
+//            System.out.println("current player is " + currentPlayer);
+//            currentPlayer =1;
 
         }
 
@@ -98,10 +103,10 @@ public class Game implements Runnable{
 
         humanTurn = false;
         gw.removeMouse(mouse);
-        System.out.println(coord[0] + " Y: "+  coord[1]);
+//        System.out.println(coord[0] + " Y: "+  coord[1]);
         gb.updatePosition(coord[1], coord[0], this.currentPlayer);
-//        if(this.currentPlayer == 1) this.currentPlayer = 2;
-//        else if(this.currentPlayer == 2) this.currentPlayer = 1;
+        if(this.currentPlayer == 1) this.currentPlayer = 2;
+        else if(this.currentPlayer == 2) this.currentPlayer = 1;
         takeTurn();
     }
 

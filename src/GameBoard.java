@@ -3,8 +3,8 @@
  */
 public class GameBoard {
 
-    private final int ROW_NUMBER = 8;
-    private final int COL_NUMBER = 8;
+    private final int MAX_ROW = 8;
+    private final int MAX_COL = 8;
     private final char BLACK = '@';
     private final char WHITE = 'O';
 
@@ -19,7 +19,7 @@ public class GameBoard {
     public GameBoard(){
 
         //storing the game board, 0 is empty, 1 is Black and 2 is White.
-        this.gameBoard = new int[ROW_NUMBER][COL_NUMBER];
+        this.gameBoard = new int[MAX_ROW][MAX_COL];
 
         //initial position
         this.gameBoard[3][3] = 2;
@@ -75,7 +75,7 @@ public class GameBoard {
         }
         if(sw){
             System.out.println("sw");
-            updateLine(player, 1, -1, row+1, col+1);
+            updateLine(player, 1, -1, row+1, col-1);
         }
         if(ss){
             System.out.println("ss");
@@ -109,7 +109,7 @@ public class GameBoard {
      */
     private boolean findToken(int player, int row_offset, int col_offset, int row, int col){
         if((col + col_offset >= 0 && row + row_offset >= 0)
-                && (col + col_offset < COL_NUMBER && row + row_offset < COL_NUMBER)){
+                && (col + col_offset < MAX_COL && row + row_offset < MAX_COL)){
 
             //empty cell
             if(gameBoard[row+row_offset][col+col_offset] == 0) return false;
@@ -134,8 +134,8 @@ public class GameBoard {
 
         int[] scores = {0,0};
 
-        for(int row = 0; row < ROW_NUMBER; row++){
-            for(int col = 0; col < COL_NUMBER; col++){
+        for(int row = 0; row < MAX_ROW; row++){
+            for(int col = 0; col < MAX_COL; col++){
                 if(this.gameBoard[row][col] == 1){
                     scores[0]++;
                 }
@@ -163,11 +163,16 @@ public class GameBoard {
      * @return a 2D int array in which illegal moves are 0 and legal moves are assigned to 'player'
      */
     public int[][] getLegalMoves(int player){
-        int[][] legalMoves = new int[ROW_NUMBER][COL_NUMBER];
+        int[][] legalMoves = new int[MAX_ROW][MAX_COL];
 
         legalMovesCount = 0;
-        for(int row = 0; row < ROW_NUMBER; row++){
-            for(int col = 0; col< COL_NUMBER; col++){
+
+        //assume player has no moves
+        if(player == 1) playerOneNoMove = true;
+        if(player == 2) playerTwoNoMove = true;
+
+        for(int row = 0; row < MAX_ROW; row++){
+            for(int col = 0; col< MAX_COL; col++){
 
                 if(this.gameBoard[row][col] == 0){
                     //checking all 8 directions of the cell
@@ -183,8 +188,9 @@ public class GameBoard {
                     boolean se = legal(player, 1, 1, row, col);
 
                     if(nw || nn || ne || w || e || sw || ss || se){
-                        legalMoves[col][row] = player;
+                        legalMoves[row][col] = player;
                         legalMovesCount++;
+                        //if player has move; update it
                         if(player == 1) playerOneNoMove = false;
                         if(player == 2) playerTwoNoMove = false;
                     }
@@ -196,6 +202,14 @@ public class GameBoard {
         return legalMoves;
     }
 
+
+    /**
+     * This function checks the the game has ended
+     * @return true if game ended
+     */
+    public boolean gameEnd(){
+        return playerOneNoMove && playerTwoNoMove;
+    }
     /**
      * This function takes a single cell and calculates if it is a legal move.
      * A legal move is defiend as: if a cell immediately adjacent to the cell we are checking is occupied by
@@ -217,25 +231,37 @@ public class GameBoard {
             return false;
         }
 
-        //out of bound
+        //not out of bound
         if((current_col + col_offset >= 0 && current_row + row_offset >= 0)
-                && (current_col + col_offset < COL_NUMBER && current_row + row_offset < COL_NUMBER)){
-            //immediately next to an enemy token
-            if(this.gameBoard[current_row + row_offset][current_col + col_offset] == op) {
-                current_col = current_col += col_offset;
-                current_row = current_row += row_offset;
-                while ((current_col + col_offset >= 0 && current_row + row_offset >= 0)
-                        && (current_col + col_offset < COL_NUMBER && current_row + row_offset < COL_NUMBER)){
-                    if (this.gameBoard[current_row + row_offset][current_col + col_offset] == player)
-                        return true;
-                    current_col = current_col += col_offset;
-                    current_row = current_row += row_offset;
-                }
+                && (current_col + col_offset < MAX_COL && current_row + row_offset < MAX_COL)){
 
+            current_col += col_offset;
+            current_row += row_offset;
 
-
-            }
         }
+        else{
+            return false;
+        }
+
+
+        //if opponent token immediately next to it
+        if(gameBoard[current_row][current_col] == op){
+
+            while((current_col + col_offset >= 0 && current_row + row_offset >= 0)
+                    && (current_col + col_offset < MAX_COL && current_row + row_offset < MAX_COL)){
+
+                current_col += col_offset;
+                current_row +=row_offset;
+
+                if(gameBoard[current_row][current_col] == 0) return false;
+                else if(gameBoard[current_row][current_col] == player) return true;
+                else continue;
+            }
+
+
+        }
+
+
 
         return false;
 
@@ -246,13 +272,13 @@ public class GameBoard {
      */
     public void printBoardToConsole(){
         //printing row by row
-        for(int i = 0; i < ROW_NUMBER; i++){
+        for(int i = 0; i < MAX_ROW; i++){
             //legend for each column at the top
             if(i == 0)    System.out.println("   A    B    C    D    E    F    G    H  ");
             //legend for each row
             System.out.print(i);
             //printing columns
-            for(int j = 0; j < COL_NUMBER; j++){
+            for(int j = 0; j < MAX_COL; j++){
                 switch(this.gameBoard[i][j]){
                     case 0:
                         System.out.print("  .  ");
