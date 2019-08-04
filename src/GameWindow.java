@@ -9,7 +9,7 @@ public class GameWindow extends Canvas{
     private JPanel rootPanel;
 
     public final int WIDTH = 1200;
-    public final int HEIGHT = 830;
+    public final int HEIGHT = 825;
 
     private Game game;
     private GameState gs;
@@ -81,6 +81,8 @@ public class GameWindow extends Canvas{
 
             case GAME:
                 frame.add(canvasPanel);
+                frame.repaint();
+                frame.revalidate();
                 game.takeTurn();
 
                 break;

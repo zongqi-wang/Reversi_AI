@@ -14,14 +14,19 @@ public class Game implements Runnable{
     private int currentPlayer;
     public PlayerType players[];
 
+    private boolean playerOneNoMove = false;
+    private boolean playerTwoNoMove = false;
+
     public Game(){
+
         gw = new GameWindow("Reversi", this);
         gs = GameState.MAIN_MENU;
         players = new PlayerType[2];
         currentPlayer = 1;
         gb = new GameBoard();
         gw.updateGameWindow();
-        this.start();
+        mcts = new MonteCarloTreeSearch(this.gb);
+        start();
     }
 
 
@@ -30,58 +35,83 @@ public class Game implements Runnable{
      */
     public void takeTurn(){
         int[][] legalMoves = gb.getLegalMoves(currentPlayer);
+        //checking if game ended
+        if(gb.gameEnd()||(playerOneNoMove && playerTwoNoMove)){
+            System.out.println("Game Ended!");
+            System.out.println("Player "+gb.getWinner()+" Won!");
+            int scores[] = gb.getScore();
+            System.out.println("Player 1 score: " + scores[0] + " Player 2 score: " + scores[1]);
+            this.gw.getFrame().dispose();
+            running = false;
+            System.exit(0);
+
+        }
+        if(gb.getLegalMovesCount() == 0){
+            if(currentPlayer == 1) playerOneNoMove = true;
+            else playerTwoNoMove = true;
+            currentPlayer = 3-currentPlayer;
+            takeTurn();
+        }
         gw.render(gb.getGameBoard(), legalMoves, currentPlayer, gb.getScore());
 
+        if(players[0] != PlayerType.HUMAN && players[1] != PlayerType.HUMAN)
+            gb.printBoardToConsole();
         //first player's turn
         if(currentPlayer == 1){
+            if(gb.isPlayerOneNoMove()){
+                currentPlayer = 2;
+                takeTurn();
+            }
             if(players[0] == PlayerType.HUMAN){
                 humanTurn(legalMoves);
             }
-            else if(players[0] == PlayerType.PURE){
-                mcts = new MonteCarloTreeSearch(gb, PlayerType.PURE, currentPlayer);
-
-            }
-            else if(players[0] == PlayerType.MINMAX){
-                mcts = new MonteCarloTreeSearch(gb, PlayerType.MINMAX, currentPlayer);
-
-            }
-            //Neural Network
             else{
-                mcts = new MonteCarloTreeSearch(gb, PlayerType.NN, currentPlayer);
-
+                AITurn(players[0]);
             }
-
-            System.out.println("current player is " + currentPlayer);
-            currentPlayer = 2;
-
         }
         //second player's turn
         else if(currentPlayer == 2){
+            //if no move is available, skip turn
+            if(gb.isPlayerTwoNoMove()){
+                currentPlayer = 1;
+                takeTurn();
+            }
             if(players[1] == PlayerType.HUMAN){
                 humanTurn(legalMoves);
             }
-            else if(players[1] == PlayerType.PURE){
-                mcts = new MonteCarloTreeSearch(gb, PlayerType.PURE, currentPlayer);
-
-            }
-            else if(players[1] == PlayerType.MINMAX){
-                mcts = new MonteCarloTreeSearch(gb, PlayerType.MINMAX, currentPlayer);
-
-            }
-            //Neural Network
             else{
-                mcts = new MonteCarloTreeSearch(gb, PlayerType.NN, currentPlayer);
-
+                AITurn(players[1]);
             }
-            System.out.println("current player is " + currentPlayer);
-            currentPlayer =1;
 
         }
 
-
-
     }
 
+
+    private void AITurn(PlayerType type){
+        if(type == PlayerType.PURE){
+            mcts.setCurrentPlayer(this.currentPlayer);
+            mcts.setGameBoard(this.gb);
+            mcts.setAI(type);
+            mcts.advanceGameTree();
+            int[] coord = mcts.getNextMove();
+            if(coord != null)
+                gb.updatePosition(coord[0], coord[1], currentPlayer);
+
+        }
+        else if(type == PlayerType.MINMAX){
+            MinMax mm = new MinMax(this.gb, currentPlayer);
+            int[] coord = mm.findNextMove();
+            if(coord != null)
+                gb.updatePosition(coord[0], coord[1], currentPlayer);
+            mm = null;
+        }
+
+        if(this.currentPlayer == 1) this.currentPlayer = 2;
+        else if(this.currentPlayer == 2) this.currentPlayer = 1;
+        takeTurn();
+
+    }
 
     /**
      * This function gets human input on the board.
@@ -98,10 +128,9 @@ public class Game implements Runnable{
 
         humanTurn = false;
         gw.removeMouse(mouse);
-        System.out.println(coord[0] + " Y: "+  coord[1]);
         gb.updatePosition(coord[1], coord[0], this.currentPlayer);
-//        if(this.currentPlayer == 1) this.currentPlayer = 2;
-//        else if(this.currentPlayer == 2) this.currentPlayer = 1;
+        if(this.currentPlayer == 1) this.currentPlayer = 2;
+        else if(this.currentPlayer == 2) this.currentPlayer = 1;
         takeTurn();
     }
 
@@ -209,6 +238,7 @@ public class Game implements Runnable{
         try{
             thread.join();
             running = false;
+            System.out.println("Stopping");
         }catch(Exception e){
             e.printStackTrace();
         }

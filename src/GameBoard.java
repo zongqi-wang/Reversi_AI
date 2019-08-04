@@ -3,8 +3,9 @@
  */
 public class GameBoard {
 
-    private final int ROW_NUMBER = 8;
-    private final int COL_NUMBER = 8;
+    private final int MAX_ROW = 8;
+    private final int MAX_COL = 8;
+    private final int MAX_DISC = 64;
     private final char BLACK = '@';
     private final char WHITE = 'O';
 
@@ -14,18 +15,40 @@ public class GameBoard {
 
     private int[][] gameBoard;
 
+    private int discOnBoard;
     private int legalMovesCount;
 
+    /**
+     * default constructor
+     */
     public GameBoard(){
-
         //storing the game board, 0 is empty, 1 is Black and 2 is White.
-        this.gameBoard = new int[ROW_NUMBER][COL_NUMBER];
-
+        this.gameBoard = new int[MAX_ROW][MAX_COL];
+        this.discOnBoard = 4;
         //initial position
         this.gameBoard[3][3] = 2;
         this.gameBoard[4][4] = 2;
         this.gameBoard[3][4] = 1;
         this.gameBoard[4][3] = 1;
+    }
+
+    /**
+     * copy constructor
+     * @param game
+     */
+    public GameBoard(GameBoard game){
+        this.discOnBoard = game.getDiscOnBoard();
+        this.playerOneNoMove = game.isPlayerOneNoMove();
+        this.playerTwoNoMove = game.isPlayerTwoNoMove();
+        int[][] toCopy = game.getGameBoard();
+        this.gameBoard = new int[MAX_ROW][MAX_COL];
+        for(int row = 0; row < MAX_ROW; row++){
+            for(int col = 0; col < MAX_COL; col++){
+                this.gameBoard[row][col] = toCopy[row][col];
+
+
+            }
+        }
     }
 
     /**
@@ -54,43 +77,67 @@ public class GameBoard {
 
 
         if(nw){
-            System.out.println("nw");
+//            System.out.println("nw");
             updateLine(player, -1, -1, row-1, col-1);
         }
         if(nn){
-            System.out.println("nn");
+//            System.out.println("nn");
             updateLine(player, -1, 0, row-1, col);
         }
         if(ne){
-            System.out.println("ne");
+//            System.out.println("ne");
             updateLine(player, -1, 1, row-1, col+1);
         }
         if(w){
-            System.out.println("w");
+//            System.out.println("w");
             updateLine(player, 0, -1, row, col-1);
         }
         if(e){
-            System.out.println("s");
+//            System.out.println("s");
             updateLine(player, 0, 1, row, col+1);
         }
         if(sw){
-            System.out.println("sw");
-            updateLine(player, 1, -1, row+1, col+1);
+//            System.out.println("sw");
+            updateLine(player, 1, -1, row+1, col-1);
         }
         if(ss){
-            System.out.println("ss");
+//            System.out.println("ss");
             updateLine(player, 1, 0, row+1, col);
         }
         if(se){
-            System.out.println("se");
+//            System.out.println("se");
             updateLine(player, 1, 1, row+1, col+1);
         }
 
-
+        discOnBoard++;
         return updated;
 
     }
 
+    /**
+     *
+     * @return
+     */
+    public int getDiscOnBoard(){
+        return discOnBoard;
+    }
+
+    public boolean isPlayerOneNoMove(){
+        return playerOneNoMove;
+    }
+
+    public boolean isPlayerTwoNoMove() {
+        return playerTwoNoMove;
+    }
+
+    /**
+     *
+     * @param player
+     * @param row_offset
+     * @param col_offset
+     * @param row
+     * @param col
+     */
     private void updateLine(int player, int row_offset, int col_offset, int row, int col){
         if(gameBoard[row][col] == player) return;
 
@@ -109,7 +156,7 @@ public class GameBoard {
      */
     private boolean findToken(int player, int row_offset, int col_offset, int row, int col){
         if((col + col_offset >= 0 && row + row_offset >= 0)
-                && (col + col_offset < COL_NUMBER && row + row_offset < COL_NUMBER)){
+                && (col + col_offset < MAX_COL && row + row_offset < MAX_COL)){
 
             //empty cell
             if(gameBoard[row+row_offset][col+col_offset] == 0) return false;
@@ -122,6 +169,10 @@ public class GameBoard {
 
     }
 
+    /**
+     *
+     * @return
+     */
     public int[][] getGameBoard(){
         return gameBoard;
     }
@@ -134,8 +185,8 @@ public class GameBoard {
 
         int[] scores = {0,0};
 
-        for(int row = 0; row < ROW_NUMBER; row++){
-            for(int col = 0; col < COL_NUMBER; col++){
+        for(int row = 0; row < MAX_ROW; row++){
+            for(int col = 0; col < MAX_COL; col++){
                 if(this.gameBoard[row][col] == 1){
                     scores[0]++;
                 }
@@ -153,7 +204,24 @@ public class GameBoard {
      * @return count of legal moves of current player after updated by getLegalMoves()
      */
     public int getLegalMovesCount(){
-        return legalMovesCount;
+        return this.legalMovesCount;
+    }
+
+    /**
+     *
+     * @param legalMoves
+     * @return
+     */
+    public int getLegalMovesCount(int[][] legalMoves){
+
+        int legalmovescount = 0;
+        for(int row = 0; row < MAX_ROW; row++){
+            for(int col = 0; col < MAX_COL; col++){
+                if(legalMoves[row][col] != 0) legalmovescount++;
+            }
+        }
+
+        return legalmovescount;
     }
 
 
@@ -163,11 +231,15 @@ public class GameBoard {
      * @return a 2D int array in which illegal moves are 0 and legal moves are assigned to 'player'
      */
     public int[][] getLegalMoves(int player){
-        int[][] legalMoves = new int[ROW_NUMBER][COL_NUMBER];
+        int[][] legalMoves = new int[MAX_ROW][MAX_COL];
 
-        legalMovesCount = 0;
-        for(int row = 0; row < ROW_NUMBER; row++){
-            for(int col = 0; col< COL_NUMBER; col++){
+        this.legalMovesCount = 0;
+        //assume player has no moves
+        if(player == 1) playerOneNoMove = true;
+        if(player == 2) playerTwoNoMove = true;
+
+        for(int row = 0; row < MAX_ROW; row++){
+            for(int col = 0; col< MAX_COL; col++){
 
                 if(this.gameBoard[row][col] == 0){
                     //checking all 8 directions of the cell
@@ -183,10 +255,12 @@ public class GameBoard {
                     boolean se = legal(player, 1, 1, row, col);
 
                     if(nw || nn || ne || w || e || sw || ss || se){
-                        legalMoves[col][row] = player;
-                        legalMovesCount++;
+                        legalMoves[row][col] = player;
+                        //if player has move; update it
                         if(player == 1) playerOneNoMove = false;
                         if(player == 2) playerTwoNoMove = false;
+
+                        this.legalMovesCount++;
                     }
                 }
             }
@@ -196,6 +270,24 @@ public class GameBoard {
         return legalMoves;
     }
 
+
+    /**
+     * This function checks the the game has ended
+     * @return true if game ended
+     */
+    public boolean gameEnd(){
+        if(this.discOnBoard == MAX_DISC) return true;
+
+        if(playerOneNoMove && playerTwoNoMove) return true;
+
+        getLegalMoves(1);
+        int playeroneMoves = getLegalMovesCount();
+        getLegalMoves(2);
+        int playerTwoMoves = getLegalMovesCount();
+        if(playeroneMoves == 0 && playerTwoMoves == 0) return true;
+
+        return false;
+    }
     /**
      * This function takes a single cell and calculates if it is a legal move.
      * A legal move is defiend as: if a cell immediately adjacent to the cell we are checking is occupied by
@@ -217,28 +309,70 @@ public class GameBoard {
             return false;
         }
 
-        //out of bound
+        //not out of bound
         if((current_col + col_offset >= 0 && current_row + row_offset >= 0)
-                && (current_col + col_offset < COL_NUMBER && current_row + row_offset < COL_NUMBER)){
-            //immediately next to an enemy token
-            if(this.gameBoard[current_row + row_offset][current_col + col_offset] == op) {
-                current_col = current_col += col_offset;
-                current_row = current_row += row_offset;
-                while ((current_col + col_offset >= 0 && current_row + row_offset >= 0)
-                        && (current_col + col_offset < COL_NUMBER && current_row + row_offset < COL_NUMBER)){
-                    if (this.gameBoard[current_row + row_offset][current_col + col_offset] == player)
-                        return true;
-                    current_col = current_col += col_offset;
-                    current_row = current_row += row_offset;
-                }
+                && (current_col + col_offset < MAX_COL && current_row + row_offset < MAX_COL)){
 
+            current_col += col_offset;
+            current_row += row_offset;
 
-
-            }
         }
+        else{
+            return false;
+        }
+
+
+        //if opponent token immediately next to it
+        if(gameBoard[current_row][current_col] == op){
+
+            while((current_col + col_offset >= 0 && current_row + row_offset >= 0)
+                    && (current_col + col_offset < MAX_COL && current_row + row_offset < MAX_COL)){
+
+                current_col += col_offset;
+                current_row +=row_offset;
+
+                if(gameBoard[current_row][current_col] == 0) return false;
+                else if(gameBoard[current_row][current_col] == player) return true;
+                else continue;
+            }
+
+
+        }
+
+
 
         return false;
 
+    }
+
+
+    /**
+     * This function calculates if the game has ended.
+     * If the game has ended, it will check how many pieces each player has on board
+     * The player who has the highest number of pieeces on board win.
+     * @return 1 if black player wins; 2 if white wins; 0 if draw; -1 if the game has not ended
+     */
+    public int getWinner(){
+//        if(!gameEnd()) return -1;
+        int[] scores = getScore();
+        if(scores[0]>scores[1]) return 1;
+        else if(scores[0] == scores[1]) return 0;
+        else return 2;
+    }
+
+    public boolean equals(GameBoard game){
+        if(this.discOnBoard != game.getDiscOnBoard()){
+            return false;
+        }
+
+        for(int row = 0; row < MAX_ROW; row++){
+            for(int col = 0; col < MAX_COL; col++){
+                if(this.gameBoard[row][col] != game.getGameBoard()[row][col]){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -246,13 +380,13 @@ public class GameBoard {
      */
     public void printBoardToConsole(){
         //printing row by row
-        for(int i = 0; i < ROW_NUMBER; i++){
+        for(int i = 0; i < MAX_ROW; i++){
             //legend for each column at the top
             if(i == 0)    System.out.println("   A    B    C    D    E    F    G    H  ");
             //legend for each row
             System.out.print(i);
             //printing columns
-            for(int j = 0; j < COL_NUMBER; j++){
+            for(int j = 0; j < MAX_COL; j++){
                 switch(this.gameBoard[i][j]){
                     case 0:
                         System.out.print("  .  ");
@@ -283,7 +417,8 @@ public class GameBoard {
                     break;
 
                 case 4:
-                    System.out.println("  Available plays: _");
+                    System.out.println();
+//                    System.out.println("  Available plays: _");
                     break;
 
                     default:
