@@ -256,6 +256,7 @@ public class GameBoard {
 
                     if(nw || nn || ne || w || e || sw || ss || se){
                         legalMoves[row][col] = player;
+                        legalMovesCount++;
                         //if player has move; update it
                         if(player == 1) playerOneNoMove = false;
                         if(player == 2) playerTwoNoMove = false;
